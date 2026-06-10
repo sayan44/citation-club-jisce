@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description"
+    content="Citation Club – JIS College of Engineering. A repository of research papers promoting research visibility, citation awareness, and academic excellence." />
+  <meta name="keywords"
+    content="Citation Club, JIS College of Engineering, research papers, academic citations, machine learning, IoT, healthcare analytics" />
+  <meta name="author" content="Citation Club, JIS College of Engineering" />
+  <title>Citation Club – JIS College of Engineering</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Merriweather:ital,wght@0,300;0,400;0,700;1,400&display=swap"
+    rel="stylesheet" />
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+
+  <!-- ==================== HEADER ==================== -->
+  <header id="site-header" role="banner">
+    <div class="header-top">
+      <div class="header-logos">
+        <!-- Left: JISCE Logo -->
+        <div class="logo-item logo-left">
+          <img src="jisce_logo.png" alt="JIS College of Engineering Logo" class="header-logo-img" id="jisce-logo" />
+        </div>
+
+        <!-- Center: Citation Club Logo -->
+        <div class="logo-item logo-center">
+          <img src="citation_club_logo.png" alt="Citation Club Logo" class="header-logo-img center-logo"
+            id="citation-logo" />
+        </div>
+
+        <!-- Right: JIS Group Logo -->
+        <div class="logo-item logo-right">
+          <img src="jis_group_logo.png" alt="JIS Group Logo" class="header-logo-img" id="jis-group-logo" />
+        </div>
+      </div>
+
+      <!-- Header Title -->
+      <div class="header-title">
+        <h1 class="site-title">Citation Club</h1>
+        <h2 class="site-subtitle">JIS College of Engineering</h2>
+        <p class="site-tagline">Promoting Research Visibility, Academic Impact and Citation Excellence</p>
+
+        <!-- Animated Counters -->
+        <div class="counters-row" id="counters-row" aria-label="Statistics">
+          <div class="counter-item">
+            <span class="counter-number" data-target="6" id="counter-domains">0</span>
+            <span class="counter-label">Research Domains</span>
+          </div>
+          <div class="counter-item">
+            <span class="counter-number" data-target="2000" data-suffix="+" id="counter-papers">0</span>
+            <span class="counter-label">Research Papers</span>
+          </div>
+          <div class="counter-item">
+            <span class="counter-number" data-target="20000" data-suffix="+" id="counter-citations">0</span>
+            <span class="counter-label">Citations</span>
+          </div>
+          <div class="counter-item">
+            <span class="counter-number" id="counter-community">Active</span>
+            <span class="counter-label">Research Community</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== NAVIGATION ==================== -->
+    <nav id="main-nav" class="main-nav" role="navigation" aria-label="Main navigation">
+      <div class="nav-container">
+        <div class="nav-brand">
+          <span class="nav-brand-icon"><i class="fas fa-quote-left"></i></span>
+          <span>Citation Club</span>
+        </div>
+
+        <!-- Hamburger Menu Button -->
+        <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation" aria-expanded="false"
+          aria-controls="nav-menu">
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+        </button>
+
+        <ul class="nav-menu" id="nav-menu" role="menubar">
+          <li role="none"><a href="#home" class="nav-link active" role="menuitem">Home</a></li>
+          <li role="none"><a href="#about" class="nav-link" role="menuitem">About</a></li>
+          <li role="none"><a href="#domains" class="nav-link" role="menuitem">Domains</a></li>
+          <li role="none"><a href="#featured" class="nav-link" role="menuitem">Featured Papers</a></li>
+          <li role="none"><a href="#resources" class="nav-link" role="menuitem">Resources</a></li>
+          <li role="none"><a href="#contact" class="nav-link" role="menuitem">Contact</a></li>
+        </ul>
+
+        <!-- Search Bar in Nav -->
+        <div class="nav-search">
+          <input type="search" id="nav-search-input" placeholder="Search papers..." aria-label="Search papers" />
+          <button id="nav-search-btn" aria-label="Search"><i class="fas fa-search"></i></button>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <!-- ==================== HERO SECTION ==================== -->
+  <section id="home" class="hero-section" aria-label="Hero banner">
+    <!-- Particle Canvas -->
+    <canvas id="particles-canvas" aria-hidden="true"></canvas>
+
+    <div class="hero-content">
+      <div class="hero-badge">
+        <i class="fas fa-star"></i> Academic Excellence Since 2020
+      </div>
+      <h2 class="hero-heading">Explore Research Across<br /><span class="hero-highlight">Emerging Technologies</span>
+      </h2>
+      <p class="hero-subheading">
+        Discover influential publications, citations, and cutting-edge research contributions from JIS College of
+        Engineering.
+      </p>
+      <div class="hero-buttons">
+        <a href="#domains" class="btn btn-primary" id="browse-domains-btn">
+          <i class="fas fa-th-large"></i> Browse Domains
+        </a>
+        <a href="#about" class="btn btn-secondary" id="learn-more-btn">
+          <i class="fas fa-info-circle"></i> Learn More
+        </a>
+      </div>
+
+      <!-- Floating stat cards in hero -->
+      <div class="hero-stats">
+        <div class="hero-stat-card glass-card">
+          <i class="fas fa-book-open"></i>
+          <div>
+            <strong>100+</strong>
+            <span>Papers</span>
+          </div>
+        </div>
+        <div class="hero-stat-card glass-card">
+          <i class="fas fa-quote-right"></i>
+          <div>
+            <strong>5000+</strong>
+            <span>Citations</span>
+          </div>
+        </div>
+        <div class="hero-stat-card glass-card">
+          <i class="fas fa-flask"></i>
+          <div>
+            <strong>6</strong>
+            <span>Domains</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-scroll-indicator" aria-hidden="true">
+      <span>Scroll to explore</span>
+      <div class="scroll-arrow"><i class="fas fa-chevron-down"></i></div>
+    </div>
+  </section>
+
+  <!-- ==================== SEARCH RESULTS OVERLAY ==================== -->
+  <div id="search-results-overlay" class="search-results-overlay hidden" role="region" aria-label="Search results"
+    aria-live="polite">
+    <div class="search-results-container">
+      <div class="search-results-header">
+        <h3 id="search-results-title">Search Results</h3>
+        <button id="close-search-btn" class="close-search-btn" aria-label="Close search results">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div id="search-results-list" class="search-results-list"></div>
+    </div>
+  </div>
+
+  <!-- ==================== ABOUT SECTION ==================== -->
+  <section id="about" class="about-section section" aria-labelledby="about-heading">
+    <div class="section-container">
+      <div class="section-header">
+        <span class="section-badge">Our Foundation</span>
+        <h2 id="about-heading" class="section-title">About Citation Club</h2>
+        <div class="section-divider"></div>
+      </div>
+
+      <div class="about-grid">
+        <!-- Mission Card -->
+        <div class="about-card glass-card" id="mission-card">
+          <div class="about-card-icon">
+            <i class="fas fa-bullseye"></i>
+          </div>
+          <h3>Our Mission</h3>
+          <p>
+            To promote high-quality research, proper citation practices, interdisciplinary collaboration,
+            and academic visibility among students and faculty at JIS College of Engineering and beyond.
+          </p>
+        </div>
+
+        <!-- Vision Card -->
+        <div class="about-card glass-card" id="vision-card">
+          <div class="about-card-icon">
+            <i class="fas fa-eye"></i>
+          </div>
+          <h3>Our Vision</h3>
+          <p>
+            To build a thriving academic research community that bridges the gap between theoretical
+            knowledge and real-world application across emerging technology domains.
+          </p>
+        </div>
+
+        <!-- Objectives Card -->
+        <div class="about-card glass-card objectives-card" id="objectives-card">
+          <div class="about-card-icon">
+            <i class="fas fa-list-check"></i>
+          </div>
+          <h3>Our Objectives</h3>
+          <ul class="objectives-list">
+            <li><i class="fas fa-check-circle"></i> Citation Awareness &amp; Best Practices</li>
+            <li><i class="fas fa-check-circle"></i> Research Dissemination &amp; Outreach</li>
+            <li><i class="fas fa-check-circle"></i> Knowledge Sharing Across Disciplines</li>
+            <li><i class="fas fa-check-circle"></i> Academic Networking &amp; Collaboration</li>
+            <li><i class="fas fa-check-circle"></i> Research Impact Tracking &amp; Analysis</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== DOMAINS SECTION ==================== -->
+  <section id="domains" class="domains-section section" aria-labelledby="domains-heading">
+    <div class="section-container">
+      <div class="section-header">
+        <span class="section-badge">Explore Knowledge</span>
+        <h2 id="domains-heading" class="section-title">Research Domains</h2>
+        <div class="section-divider"></div>
+        <p class="section-description">Click on any domain to explore curated research papers and publications.</p>
+      </div>
+
+      <!-- Domain Tab Buttons -->
+      <div class="domain-tabs" role="tablist" aria-label="Research domain tabs">
+        <button class="domain-tab active" role="tab" aria-selected="true" aria-controls="papers-panel"
+          data-domain="healthcare" id="tab-healthcare">
+          <div class="tab-icon"><i class="fas fa-heartbeat"></i></div>
+          <div class="tab-info">
+            <span class="tab-name">Healthcare &amp; Medical AI</span>
+            <span class="tab-count">0 Papers</span>
+          </div>
+        </button>
+        <button class="domain-tab" role="tab" aria-selected="false" aria-controls="papers-panel" data-domain="ml"
+          id="tab-ml">
+          <div class="tab-icon"><i class="fas fa-brain"></i></div>
+          <div class="tab-info">
+            <span class="tab-name">Machine Learning &amp; Core AI</span>
+            <span class="tab-count">0 Papers</span>
+          </div>
+        </button>
+        <button class="domain-tab" role="tab" aria-selected="false" aria-controls="papers-panel" data-domain="image"
+          id="tab-image">
+          <div class="tab-icon"><i class="fas fa-image"></i></div>
+          <div class="tab-info">
+            <span class="tab-name">Image &amp; Signal Processing</span>
+            <span class="tab-count">0 Papers</span>
+          </div>
+        </button>
+        <button class="domain-tab" role="tab" aria-selected="false" aria-controls="papers-panel" data-domain="remote"
+          id="tab-remote">
+          <div class="tab-icon"><i class="fas fa-satellite"></i></div>
+          <div class="tab-info">
+            <span class="tab-name">Remote Sensing &amp; Applied Sciences</span>
+            <span class="tab-count">0 Papers</span>
+          </div>
+        </button>
+        <button class="domain-tab" role="tab" aria-selected="false" aria-controls="papers-panel" data-domain="iot"
+          id="tab-iot">
+          <div class="tab-icon"><i class="fas fa-network-wired"></i></div>
+          <div class="tab-info">
+            <span class="tab-name">IoT &amp; Networking</span>
+            <span class="tab-count">0 Papers</span>
+          </div>
+        </button>
+        <button class="domain-tab" role="tab" aria-selected="false" aria-controls="papers-panel" data-domain="ds"
+          id="tab-ds">
+          <div class="tab-icon"><i class="fas fa-robot"></i></div>
+          <div class="tab-info">
+            <span class="tab-name">Data Science &amp; Analytics</span>
+            <span class="tab-count">0 Papers</span>
+          </div>
+        </button>
+      </div>
+
+      <!-- Active Domain Card Banner -->
+      <div class="domain-info-banner glass-card" id="domain-info-banner" aria-live="polite">
+        <div class="domain-banner-icon" id="domain-banner-icon"><i class="fas fa-heartbeat"></i></div>
+        <div class="domain-banner-text">
+          <h3 id="domain-banner-name">Healthcare Analytics</h3>
+          <p id="domain-banner-desc">Explore AI-driven breakthroughs in medical imaging, diagnostics, and patient care
+            research.</p>
+        </div>
+        <div class="domain-banner-stat">
+          <span class="domain-paper-count" id="domain-paper-count">3</span>
+          <span>Papers</span>
+        </div>
+      </div>
+
+      <!-- Papers Panel -->
+      <div id="papers-panel" class="papers-panel" role="tabpanel" aria-label="Research papers">
+        <div class="papers-grid" id="papers-grid">
+          <!-- Papers injected by JS -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== FEATURED PAPERS CAROUSEL ==================== -->
+  <section id="featured" class="featured-section section" aria-labelledby="featured-heading">
+    <div class="section-container">
+      <div class="section-header">
+        <span class="section-badge">Highlights</span>
+        <h2 id="featured-heading" class="section-title">Featured Papers</h2>
+        <div class="section-divider"></div>
+        <p class="section-description">Landmark research publications across all domains.</p>
+      </div>
+
+      <div class="carousel-wrapper" aria-label="Featured papers carousel">
+        <button class="carousel-btn carousel-btn-prev" id="carousel-prev" aria-label="Previous paper">
+          <i class="fas fa-chevron-left"></i>
+        </button>
+
+        <div class="carousel-track-container" id="carousel-container">
+          <div class="carousel-track" id="carousel-track">
+            <!-- Slides injected by JS -->
+          </div>
+        </div>
+
+        <button class="carousel-btn carousel-btn-next" id="carousel-next" aria-label="Next paper">
+          <i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
+
+      <!-- Carousel Dots -->
+      <div class="carousel-dots" id="carousel-dots" role="group" aria-label="Carousel navigation dots"></div>
+    </div>
+  </section>
+
+  <!-- ==================== STATISTICS DASHBOARD ==================== -->
+  <section id="stats" class="stats-section section" aria-labelledby="stats-heading">
+    <div class="section-container">
+      <div class="section-header">
+        <span class="section-badge">Data Insights</span>
+        <h2 id="stats-heading" class="section-title">Research Analytics</h2>
+        <div class="section-divider"></div>
+        <p class="section-description">Interactive visualizations of our research portfolio and citation landscape.</p>
+      </div>
+
+      <div class="charts-grid">
+        <div class="chart-card glass-card" id="chart-card-domains">
+          <h3 class="chart-title"><i class="fas fa-chart-pie"></i> Papers by Domain</h3>
+          <div class="chart-container">
+            <canvas id="donutChart" aria-label="Papers by domain donut chart"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-card glass-card" id="chart-card-citations">
+          <h3 class="chart-title"><i class="fas fa-chart-bar"></i> Citation Distribution</h3>
+          <div class="chart-container">
+            <canvas id="barChart" aria-label="Citation distribution bar chart"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-card glass-card" id="chart-card-growth">
+          <h3 class="chart-title"><i class="fas fa-chart-line"></i> Research Growth</h3>
+          <div class="chart-container">
+            <canvas id="lineChart" aria-label="Research growth line chart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== RESOURCES SECTION ==================== -->
+  <section id="resources" class="resources-section section" aria-labelledby="resources-heading">
+    <div class="section-container">
+      <div class="section-header">
+        <span class="section-badge">Research Tools</span>
+        <h2 id="resources-heading" class="section-title">Academic Resources</h2>
+        <div class="section-divider"></div>
+        <p class="section-description">Essential platforms and databases for research discovery and citation management.
+        </p>
+      </div>
+
+      <div class="resources-grid">
+
+        <article class="resource-card glass-card" id="resource-google-scholar">
+          <div class="resource-icon" style="background: linear-gradient(135deg, #4285F4, #34A853);">
+            <i class="fas fa-graduation-cap"></i>
+          </div>
+          <h3>Google Scholar</h3>
+          <p>The world's largest academic search engine. Find papers, citations, and author profiles across all
+            disciplines.</p>
+          <a href="https://scholar.google.com" target="_blank" rel="noopener noreferrer" class="btn btn-resource"
+            aria-label="Visit Google Scholar">
+            <i class="fas fa-external-link-alt"></i> Visit Platform
+          </a>
+        </article>
+
+        <article class="resource-card glass-card" id="resource-scopus">
+          <div class="resource-icon" style="background: linear-gradient(135deg, #FF6B35, #F7C59F);">
+            <i class="fas fa-database"></i>
+          </div>
+          <h3>Scopus</h3>
+          <p>Elsevier's abstract and citation database covering peer-reviewed literature from thousands of journals
+            worldwide.</p>
+          <a href="https://www.scopus.com" target="_blank" rel="noopener noreferrer" class="btn btn-resource"
+            aria-label="Visit Scopus">
+            <i class="fas fa-external-link-alt"></i> Visit Platform
+          </a>
+        </article>
+
+        <article class="resource-card glass-card" id="resource-wos">
+          <div class="resource-icon" style="background: linear-gradient(135deg, #1a1a2e, #16213e);">
+            <i class="fas fa-globe"></i>
+          </div>
+          <h3>Web of Science</h3>
+          <p>Clarivate's leading citation index connecting the global scientific community with trusted data and
+            analytics.</p>
+          <a href="https://www.webofscience.com" target="_blank" rel="noopener noreferrer" class="btn btn-resource"
+            aria-label="Visit Web of Science">
+            <i class="fas fa-external-link-alt"></i> Visit Platform
+          </a>
+        </article>
+
+        <article class="resource-card glass-card" id="resource-orcid">
+          <div class="resource-icon" style="background: linear-gradient(135deg, #A6CE39, #5E9E21);">
+            <i class="fas fa-id-badge"></i>
+          </div>
+          <h3>ORCID</h3>
+          <p>Open Researcher and Contributor ID – a persistent digital identifier for researchers to distinguish their
+            work.</p>
+          <a href="https://orcid.org" target="_blank" rel="noopener noreferrer" class="btn btn-resource"
+            aria-label="Visit ORCID">
+            <i class="fas fa-external-link-alt"></i> Visit Platform
+          </a>
+        </article>
+
+        <article class="resource-card glass-card" id="resource-crossref">
+          <div class="resource-icon" style="background: linear-gradient(135deg, #e53e3e, #c53030);">
+            <i class="fas fa-link"></i>
+          </div>
+          <h3>CrossRef</h3>
+          <p>The official DOI registration agency for scholarly publications. Verify DOIs and track citation metadata.
+          </p>
+          <a href="https://www.crossref.org" target="_blank" rel="noopener noreferrer" class="btn btn-resource"
+            aria-label="Visit CrossRef">
+            <i class="fas fa-external-link-alt"></i> Visit Platform
+          </a>
+        </article>
+
+        <article class="resource-card glass-card" id="resource-researchgate">
+          <div class="resource-icon" style="background: linear-gradient(135deg, #00D2FF, #0084B4);">
+            <i class="fas fa-users"></i>
+          </div>
+          <h3>ResearchGate</h3>
+          <p>Social networking site for scientists and researchers to share papers, ask questions, and find
+            collaborators.</p>
+          <a href="https://www.researchgate.net" target="_blank" rel="noopener noreferrer" class="btn btn-resource"
+            aria-label="Visit ResearchGate">
+            <i class="fas fa-external-link-alt"></i> Visit Platform
+          </a>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== CONTACT SECTION ==================== -->
+  <section id="contact" class="contact-section section" aria-labelledby="contact-heading">
+    <div class="section-container">
+      <div class="section-header">
+        <span class="section-badge">Get In Touch</span>
+        <h2 id="contact-heading" class="section-title">Contact Us</h2>
+        <div class="section-divider"></div>
+      </div>
+
+      <div class="contact-grid">
+        <!-- Contact Info -->
+        <div class="contact-info glass-card" id="contact-info-card">
+          <h3>Faculty Coordinator</h3>
+
+          <div class="contact-item">
+            <div class="contact-item-icon">
+              <i class="fas fa-user-tie"></i>
+            </div>
+            <div class="contact-item-text">
+              <strong>Dr. Sayan Chakraborty</strong>
+              <span>Faculty Coordinator, Citation Club</span>
+            </div>
+          </div>
+
+          <div class="contact-item">
+            <div class="contact-item-icon">
+              <i class="fas fa-envelope"></i>
+            </div>
+            <div class="contact-item-text">
+              <strong>Email</strong>
+              <a href="mailto:citationclub@jiscollege.ac.in">sayan.chakraborty@jiscollege.ac.in</a>
+            </div>
+          </div>
+
+          <div class="contact-item">
+            <div class="contact-item-icon">
+              <i class="fas fa-map-marker-alt"></i>
+            </div>
+            <div class="contact-item-text">
+              <strong>Address</strong>
+              <address>
+                JIS College of Engineering<br />
+                Kalyani, Nadia<br />
+                West Bengal, India – 741235
+              </address>
+            </div>
+          </div>
+
+          <div class="contact-item">
+            <div class="contact-item-icon">
+              <i class="fas fa-clock"></i>
+            </div>
+            <div class="contact-item-text">
+              <strong>Office Hours</strong>
+              <span>Mon – Fri: 10:00 AM – 5:00 PM</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contact Form -->
+        <div class="contact-form-wrapper glass-card" id="contact-form-card">
+          <h3>Send a Message</h3>
+          <form id="contact-form" novalidate>
+            <div class="form-group">
+              <label for="contact-name">Full Name</label>
+              <input type="text" id="contact-name" name="name" placeholder="Your full name" required
+                autocomplete="name" />
+              <span class="form-error" id="name-error" role="alert"></span>
+            </div>
+            <div class="form-group">
+              <label for="contact-email">Email Address</label>
+              <input type="email" id="contact-email" name="email" placeholder="your@email.com" required
+                autocomplete="email" />
+              <span class="form-error" id="email-error" role="alert"></span>
+            </div>
+            <div class="form-group">
+              <label for="contact-subject">Subject</label>
+              <select id="contact-subject" name="subject" required>
+                <option value="" disabled selected>Select a topic</option>
+                <option value="research">Research Collaboration</option>
+                <option value="citation">Citation Query</option>
+                <option value="paper">Paper Submission</option>
+                <option value="membership">Club Membership</option>
+                <option value="other">Other</option>
+              </select>
+              <span class="form-error" id="subject-error" role="alert"></span>
+            </div>
+            <div class="form-group">
+              <label for="contact-message">Message</label>
+              <textarea id="contact-message" name="message" rows="5" placeholder="Write your message here..."
+                required></textarea>
+              <span class="form-error" id="message-error" role="alert"></span>
+            </div>
+            <button type="submit" class="btn btn-primary btn-submit" id="submit-btn">
+              <i class="fas fa-paper-plane"></i> Send Message
+            </button>
+            <div id="form-success" class="form-success hidden" role="alert">
+              <i class="fas fa-check-circle"></i> Message sent successfully! We'll get back to you soon.
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer class="site-footer" role="contentinfo">
+    <div class="footer-main">
+      <div class="footer-brand">
+        <img src="citation_club_logo.png" alt="Citation Club Logo" class="footer-logo" />
+        <div class="footer-brand-text">
+          <h3>Citation Club</h3>
+          <p>JIS College of Engineering</p>
+          <p class="footer-tagline">
+            <i class="fas fa-quote-left"></i> Research • Cite • Impact <i class="fas fa-quote-right"></i>
+          </p>
+        </div>
+      </div>
+
+      <div class="footer-links">
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a href="#home"><i class="fas fa-chevron-right"></i> Home</a></li>
+          <li><a href="#about"><i class="fas fa-chevron-right"></i> About</a></li>
+          <li><a href="#domains"><i class="fas fa-chevron-right"></i> Domains</a></li>
+          <li><a href="#resources"><i class="fas fa-chevron-right"></i> Resources</a></li>
+          <li><a href="#contact"><i class="fas fa-chevron-right"></i> Contact</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-domains">
+        <h4>Research Domains</h4>
+        <ul>
+          <li><a href="#domains"><i class="fas fa-heartbeat"></i> Healthcare &amp; Medical AI</a></li>
+          <li><a href="#domains"><i class="fas fa-brain"></i> Machine Learning &amp; Core AI</a></li>
+          <li><a href="#domains"><i class="fas fa-image"></i> Image &amp; Signal Processing</a></li>
+          <li><a href="#domains"><i class="fas fa-satellite"></i> Remote Sensing &amp; Applied Sciences</a></li>
+          <li><a href="#domains"><i class="fas fa-network-wired"></i> IoT &amp; Networking</a></li>
+          <li><a href="#domains"><i class="fas fa-robot"></i> Data Science &amp; Analytics</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-contact">
+        <h4>Connect With Us</h4>
+        <p><i class="fas fa-envelope"></i> sayan.chakraborty@jiscollege.ac.in</p>
+        <p><i class="fas fa-map-marker-alt"></i> Kalyani, West Bengal, India</p>
+        <div class="social-icons">
+          <a href="#" class="social-icon" aria-label="LinkedIn" id="social-linkedin"><i
+              class="fab fa-linkedin-in"></i></a>
+          <a href="#" class="social-icon" aria-label="Twitter" id="social-twitter"><i class="fab fa-twitter"></i></a>
+          <a href="#" class="social-icon" aria-label="ResearchGate" id="social-rg"><i class="fas fa-flask"></i></a>
+          <a href="#" class="social-icon" aria-label="GitHub" id="social-github"><i class="fab fa-github"></i></a>
+          <a href="#" class="social-icon" aria-label="YouTube" id="social-youtube"><i class="fab fa-youtube"></i></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>&copy; 2026 Citation Club, JIS College of Engineering. All Rights Reserved.</p>
+      <p class="footer-credits">Designed with <i class="fas fa-heart" style="color:#f6c90e"></i> for Academic Excellence
+      </p>
+    </div>
+  </footer>
+
+  <!-- Back to Top Button -->
+  <button id="back-to-top" class="back-to-top" aria-label="Back to top" title="Back to top">
+    <i class="fas fa-chevron-up"></i>
+  </button>
+
+  <!-- Custom JS -->
+  <script src="papers_data.js"></script>
+  <script src="script.js"></script>
+</body>
+
+</html>
