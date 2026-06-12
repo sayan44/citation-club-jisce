@@ -1905,3 +1905,445 @@ address {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ---------- DYNAMIC DOMAIN SELECTOR & FILTER STYLES ---------- */
+.domain-filter-controls {
+  max-width: 700px;
+  margin: 0 auto 28px;
+}
+
+.domain-search-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: var(--white);
+  border: 2px solid rgba(10, 36, 99, 0.15);
+  border-radius: var(--radius-full);
+  padding: 14px 28px;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-fast);
+}
+
+.domain-search-wrapper:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(246, 201, 14, 0.2), var(--shadow-md);
+}
+
+.domain-search-icon {
+  color: var(--primary-light);
+  font-size: 1.25rem;
+  margin-right: 14px;
+}
+
+.domain-search-wrapper input {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.domain-search-wrapper input::placeholder {
+  color: var(--text-muted);
+}
+
+.domain-pills-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 36px;
+  max-height: none; /* Removed scrolling limit so pills can expand freely */
+  overflow-y: visible;
+  padding: 24px;
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(10, 36, 99, 0.08);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02), var(--shadow-md);
+}
+
+/* Category Filter Bar Styles */
+.category-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+  width: 100%;
+}
+
+.category-filter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: var(--radius-full);
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 2px solid rgba(10, 36, 99, 0.1);
+  background: var(--white);
+  color: var(--primary);
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+}
+
+.category-filter-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.category-filter-btn i {
+  font-size: 0.95rem;
+}
+
+/* Category Filter Buttons Dynamic Colors */
+.category-filter-btn[data-category="all"]:hover,
+.category-filter-btn[data-category="all"].active {
+  border-color: var(--accent-dark);
+  color: var(--primary-dark);
+  background: rgba(246, 201, 14, 0.15);
+}
+.category-filter-btn[data-category="all"].active {
+  background: var(--grad-accent);
+  box-shadow: 0 4px 12px rgba(246, 201, 14, 0.3);
+}
+
+.category-filter-btn[data-category="healthcare"]:hover,
+.category-filter-btn[data-category="healthcare"].active {
+  border-color: #ef4444;
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.06);
+}
+.category-filter-btn[data-category="healthcare"].active {
+  background: #ef4444;
+  color: var(--white);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.category-filter-btn[data-category="ml"]:hover,
+.category-filter-btn[data-category="ml"].active {
+  border-color: #8b5cf6;
+  color: #8b5cf6;
+  background: rgba(139, 92, 246, 0.06);
+}
+.category-filter-btn[data-category="ml"].active {
+  background: #8b5cf6;
+  color: var(--white);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+.category-filter-btn[data-category="image"]:hover,
+.category-filter-btn[data-category="image"].active {
+  border-color: #06b6d4;
+  color: #06b6d4;
+  background: rgba(6, 182, 212, 0.06);
+}
+.category-filter-btn[data-category="image"].active {
+  background: #06b6d4;
+  color: var(--white);
+  box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+}
+
+.category-filter-btn[data-category="remote"]:hover,
+.category-filter-btn[data-category="remote"].active {
+  border-color: #f59e0b;
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.06);
+}
+.category-filter-btn[data-category="remote"].active {
+  background: #f59e0b;
+  color: var(--white);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+
+.category-filter-btn[data-category="iot"]:hover,
+.category-filter-btn[data-category="iot"].active {
+  border-color: #10b981;
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.06);
+}
+.category-filter-btn[data-category="iot"].active {
+  background: #10b981;
+  color: var(--white);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.category-filter-btn[data-category="ds"]:hover,
+.category-filter-btn[data-category="ds"].active {
+  border-color: #3b82f6;
+  color: #3b82f6;
+  background: rgba(59, 130, 246, 0.06);
+}
+.category-filter-btn[data-category="ds"].active {
+  background: #3b82f6;
+  color: var(--white);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+/* Domain Pill Styles */
+.domain-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: var(--white);
+  border: 2px solid rgba(10, 36, 99, 0.06);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--primary);
+  transition: all var(--transition-fast);
+  box-shadow: 0 2px 5px rgba(10, 36, 99, 0.04);
+  user-select: none;
+}
+
+.domain-pill:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(10, 36, 99, 0.08);
+}
+
+.pill-icon {
+  font-size: 1rem;
+  transition: color var(--transition-fast);
+}
+
+.pill-count {
+  font-size: 0.78rem;
+  background: rgba(10, 36, 99, 0.08);
+  color: var(--primary-light);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  font-weight: 700;
+  transition: all var(--transition-fast);
+}
+
+/* Active Pill Styles overrides for category gradients */
+.domain-pill.active {
+  color: var(--white);
+  transform: translateY(-2px);
+}
+
+.domain-pill.active .pill-icon {
+  color: var(--white) !important;
+}
+
+.domain-pill.active .pill-count {
+  background: rgba(255, 255, 255, 0.25);
+  color: var(--white);
+}
+
+/* Category-specific styling for pills */
+/* 1. Healthcare */
+.domain-pill.cat-healthcare {
+  border-color: rgba(239, 68, 68, 0.12);
+  background: rgba(239, 68, 68, 0.02);
+}
+.domain-pill.cat-healthcare:hover {
+  border-color: #ef4444;
+  background: rgba(239, 68, 68, 0.05);
+}
+.domain-pill.cat-healthcare .pill-icon {
+  color: #ef4444;
+}
+.domain-pill.cat-healthcare.active {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  border-color: #ef4444;
+  box-shadow: 0 6px 16px rgba(239, 68, 68, 0.25);
+}
+
+/* 2. Machine Learning */
+.domain-pill.cat-ml {
+  border-color: rgba(139, 92, 246, 0.12);
+  background: rgba(139, 92, 246, 0.02);
+}
+.domain-pill.cat-ml:hover {
+  border-color: #8b5cf6;
+  background: rgba(139, 92, 246, 0.05);
+}
+.domain-pill.cat-ml .pill-icon {
+  color: #8b5cf6;
+}
+.domain-pill.cat-ml.active {
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  border-color: #8b5cf6;
+  box-shadow: 0 6px 16px rgba(139, 92, 246, 0.25);
+}
+
+/* 3. Image Processing */
+.domain-pill.cat-image {
+  border-color: rgba(6, 182, 212, 0.12);
+  background: rgba(6, 182, 212, 0.02);
+}
+.domain-pill.cat-image:hover {
+  border-color: #06b6d4;
+  background: rgba(6, 182, 212, 0.05);
+}
+.domain-pill.cat-image .pill-icon {
+  color: #06b6d4;
+}
+.domain-pill.cat-image.active {
+  background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+  border-color: #06b6d4;
+  box-shadow: 0 6px 16px rgba(6, 182, 212, 0.25);
+}
+
+/* 4. Remote Sensing */
+.domain-pill.cat-remote {
+  border-color: rgba(245, 158, 11, 0.12);
+  background: rgba(245, 158, 11, 0.02);
+}
+.domain-pill.cat-remote:hover {
+  border-color: #f59e0b;
+  background: rgba(245, 158, 11, 0.05);
+}
+.domain-pill.cat-remote .pill-icon {
+  color: #f59e0b;
+}
+.domain-pill.cat-remote.active {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  border-color: #f59e0b;
+  box-shadow: 0 6px 16px rgba(245, 158, 11, 0.25);
+}
+
+/* 5. IoT & Networking */
+.domain-pill.cat-iot {
+  border-color: rgba(16, 185, 129, 0.12);
+  background: rgba(16, 185, 129, 0.02);
+}
+.domain-pill.cat-iot:hover {
+  border-color: #10b981;
+  background: rgba(16, 185, 129, 0.05);
+}
+.domain-pill.cat-iot .pill-icon {
+  color: #10b981;
+}
+.domain-pill.cat-iot.active {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border-color: #10b981;
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.25);
+}
+
+/* 6. Data Science */
+.domain-pill.cat-ds {
+  border-color: rgba(59, 130, 246, 0.12);
+  background: rgba(59, 130, 246, 0.02);
+}
+.domain-pill.cat-ds:hover {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.05);
+}
+.domain-pill.cat-ds .pill-icon {
+  color: #3b82f6;
+}
+.domain-pill.cat-ds.active {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  border-color: #3b82f6;
+  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.25);
+}
+
+/* Year Tabs */
+.year-tabs-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 36px;
+  background: var(--white);
+  padding: 20px;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  border: 2px solid rgba(10, 36, 99, 0.04);
+}
+
+.year-filter-label {
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.year-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.year-tab {
+  padding: 8px 24px;
+  background: rgba(10, 36, 99, 0.04);
+  border: 1.5px solid transparent;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  transition: all var(--transition-fast);
+}
+
+.year-tab:hover {
+  background: rgba(10, 36, 99, 0.08);
+  color: var(--primary);
+  transform: translateY(-1px);
+}
+
+.year-tab.active {
+  background: var(--grad-accent);
+  color: var(--primary-dark);
+  border-color: var(--accent-dark);
+  box-shadow: 0 4px 12px rgba(246, 201, 14, 0.4);
+  transform: translateY(-1px);
+}
+
+/* Domain Banner and Papers Bottom Navigation Action Styles */
+.domain-banner-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-shrink: 0;
+}
+
+.papers-action-row {
+  display: flex;
+  justify-content: center;
+  margin-top: 36px;
+  margin-bottom: 16px;
+  width: 100%;
+}
+
+.back-to-domains-btn {
+  white-space: nowrap;
+  box-shadow: var(--shadow-sm);
+}
+
+.back-to-domains-btn:hover {
+  border-color: var(--accent) !important;
+  color: var(--accent) !important;
+}
+
+@media (max-width: 768px) {
+  .domain-banner-right {
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+    width: 100%;
+  }
+  .back-to-domains-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+

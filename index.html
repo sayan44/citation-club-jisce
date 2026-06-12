@@ -245,56 +245,42 @@
         <p class="section-description">Click on any domain to explore curated research papers and publications.</p>
       </div>
 
-      <!-- Domain Tab Buttons -->
-      <div class="domain-tabs" role="tablist" aria-label="Research domain tabs">
-        <button class="domain-tab active" role="tab" aria-selected="true" aria-controls="papers-panel"
-          data-domain="healthcare" id="tab-healthcare">
-          <div class="tab-icon"><i class="fas fa-heartbeat"></i></div>
-          <div class="tab-info">
-            <span class="tab-name">Healthcare &amp; Medical AI</span>
-            <span class="tab-count">0 Papers</span>
-          </div>
-        </button>
-        <button class="domain-tab" role="tab" aria-selected="false" aria-controls="papers-panel" data-domain="ml"
-          id="tab-ml">
-          <div class="tab-icon"><i class="fas fa-brain"></i></div>
-          <div class="tab-info">
-            <span class="tab-name">Machine Learning &amp; Core AI</span>
-            <span class="tab-count">0 Papers</span>
-          </div>
-        </button>
-        <button class="domain-tab" role="tab" aria-selected="false" aria-controls="papers-panel" data-domain="image"
-          id="tab-image">
-          <div class="tab-icon"><i class="fas fa-image"></i></div>
-          <div class="tab-info">
-            <span class="tab-name">Image &amp; Signal Processing</span>
-            <span class="tab-count">0 Papers</span>
-          </div>
-        </button>
-        <button class="domain-tab" role="tab" aria-selected="false" aria-controls="papers-panel" data-domain="remote"
-          id="tab-remote">
-          <div class="tab-icon"><i class="fas fa-satellite"></i></div>
-          <div class="tab-info">
-            <span class="tab-name">Remote Sensing &amp; Applied Sciences</span>
-            <span class="tab-count">0 Papers</span>
-          </div>
-        </button>
-        <button class="domain-tab" role="tab" aria-selected="false" aria-controls="papers-panel" data-domain="iot"
-          id="tab-iot">
-          <div class="tab-icon"><i class="fas fa-network-wired"></i></div>
-          <div class="tab-info">
-            <span class="tab-name">IoT &amp; Networking</span>
-            <span class="tab-count">0 Papers</span>
-          </div>
-        </button>
-        <button class="domain-tab" role="tab" aria-selected="false" aria-controls="papers-panel" data-domain="ds"
-          id="tab-ds">
-          <div class="tab-icon"><i class="fas fa-robot"></i></div>
-          <div class="tab-info">
-            <span class="tab-name">Data Science &amp; Analytics</span>
-            <span class="tab-count">0 Papers</span>
-          </div>
-        </button>
+      <!-- Domain Search & Filters -->
+      <div class="domain-filter-controls">
+        <div class="domain-search-wrapper">
+          <i class="fas fa-search domain-search-icon"></i>
+          <input type="text" id="domain-select-search" placeholder="Search research domains (e.g., medical, power, vlsi)..." aria-label="Search domains" />
+        </div>
+
+        <!-- Category Filter Bar -->
+        <div class="category-filter-bar" id="category-filter-bar" role="tablist" aria-label="Filter domains by category">
+          <button class="category-filter-btn active" data-category="all" role="tab" aria-selected="true">
+            <i class="fas fa-th"></i> All Categories
+          </button>
+          <button class="category-filter-btn" data-category="healthcare" role="tab" aria-selected="false">
+            <i class="fas fa-heartbeat"></i> Healthcare
+          </button>
+          <button class="category-filter-btn" data-category="ml" role="tab" aria-selected="false">
+            <i class="fas fa-brain"></i> Machine Learning
+          </button>
+          <button class="category-filter-btn" data-category="image" role="tab" aria-selected="false">
+            <i class="fas fa-image"></i> Image & Signal
+          </button>
+          <button class="category-filter-btn" data-category="remote" role="tab" aria-selected="false">
+            <i class="fas fa-satellite"></i> Remote Sensing
+          </button>
+          <button class="category-filter-btn" data-category="iot" role="tab" aria-selected="false">
+            <i class="fas fa-network-wired"></i> IoT & Networking
+          </button>
+          <button class="category-filter-btn" data-category="ds" role="tab" aria-selected="false">
+            <i class="fas fa-robot"></i> Data Science
+          </button>
+        </div>
+      </div>
+
+      <!-- Domain Pills Grid -->
+      <div class="domain-pills-grid" id="domain-pills-grid" role="tablist" aria-label="Research domains">
+        <!-- Injected dynamically by JS -->
       </div>
 
       <!-- Active Domain Card Banner -->
@@ -305,9 +291,22 @@
           <p id="domain-banner-desc">Explore AI-driven breakthroughs in medical imaging, diagnostics, and patient care
             research.</p>
         </div>
-        <div class="domain-banner-stat">
-          <span class="domain-paper-count" id="domain-paper-count">3</span>
-          <span>Papers</span>
+        <div class="domain-banner-right">
+          <div class="domain-banner-stat">
+            <span class="domain-paper-count" id="domain-paper-count">3</span>
+            <span>Papers</span>
+          </div>
+          <button class="btn btn-secondary back-to-domains-btn" id="back-to-domains-top-btn" aria-label="Back to domains list">
+            <i class="fas fa-arrow-up"></i> Back to Domains
+          </button>
+        </div>
+      </div>
+
+      <!-- Year Tabs (Dynamic based on selected domain) -->
+      <div class="year-tabs-wrapper">
+        <span class="year-filter-label"><i class="fas fa-filter"></i> Filter by Year:</span>
+        <div class="year-tabs" id="year-tabs" role="tablist" aria-label="Year filters">
+          <!-- Injected dynamically by JS -->
         </div>
       </div>
 
@@ -315,6 +314,13 @@
       <div id="papers-panel" class="papers-panel" role="tabpanel" aria-label="Research papers">
         <div class="papers-grid" id="papers-grid">
           <!-- Papers injected by JS -->
+        </div>
+        
+        <!-- Action Row under Papers -->
+        <div class="papers-action-row">
+          <button class="btn btn-secondary back-to-domains-btn" id="back-to-domains-bottom-btn">
+            <i class="fas fa-arrow-up"></i> Back to Domains List
+          </button>
         </div>
       </div>
     </div>

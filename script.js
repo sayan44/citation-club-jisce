@@ -389,26 +389,71 @@ function highlightActiveNavLink() {
    DOMAIN TABS & PAPER RENDERING
    ============================================================ */
 function initDomainTabs() {
-  updateTabCounts();
-  const tabs = document.querySelectorAll('.domain-tab');
+  const pillsGrid = document.getElementById('domain-pills-grid');
+  const searchInput = document.getElementById('domain-select-search');
   const papersGrid = document.getElementById('papers-grid');
 
-  function renderPapers(domainKey) {
-    const domain = RESEARCH_DATA[domainKey];
-    if (!domain || !papersGrid) return;
+  if (!pillsGrid) return;
 
-    // Update banner
-    document.getElementById('domain-banner-icon').innerHTML = `<i class="${domain.icon}"></i>`;
-    document.getElementById('domain-banner-name').textContent = domain.name;
-    document.getElementById('domain-banner-desc').textContent = domain.description;
-    document.getElementById('domain-paper-count').textContent = domain.papers.length;
+  // Extract unique domains dynamically and map them to their category
+  const domainsMap = {};
+  const domainCategoryMap = {};
+  PAPERS_DATABASE.forEach(paper => {
+    const dom = paper.domain;
+    if (dom) {
+      domainsMap[dom] = (domainsMap[dom] || 0) + 1;
+      if (paper.category) {
+        domainCategoryMap[dom] = paper.category;
+      }
+    }
+  });
+  const sortedDomains = Object.keys(domainsMap).sort();
 
-    // Build paper cards
+  let activeDomain = sortedDomains[0] || '';
+  let activeYear = 'All';
+
+  // Render papers for selected domain and year
+  function renderPapers(domainName, yearFilter = 'All') {
+    if (!papersGrid) return;
+
+    const domainPapers = PAPERS_DATABASE.filter(p => p.domain === domainName);
+    const samplePaper = domainPapers[0];
+    const categoryKey = samplePaper ? samplePaper.category : 'ds';
+    const categoryInfo = RESEARCH_DATA[categoryKey] || { icon: 'fas fa-book', description: 'Curated research publications.' };
+
+    const filteredPapers = yearFilter === 'All'
+      ? domainPapers
+      : domainPapers.filter(p => p.year === yearFilter);
+
+    // Sort: latest year first, then title
+    filteredPapers.sort((a, b) => {
+      const yrDiff = b.year.localeCompare(a.year);
+      if (yrDiff !== 0) return yrDiff;
+      return a.title.localeCompare(b.title);
+    });
+
+    // Update banner details
+    const bannerIcon = document.getElementById('domain-banner-icon');
+    const bannerName = document.getElementById('domain-banner-name');
+    const bannerDesc = document.getElementById('domain-banner-desc');
+    const bannerPaperCount = document.getElementById('domain-paper-count');
+
+    if (bannerIcon) bannerIcon.innerHTML = `<i class="${categoryInfo.icon}"></i>`;
+    if (bannerName) bannerName.textContent = domainName;
+    if (bannerDesc) bannerDesc.textContent = `Explore research achievements, academic publications, and citation profiles in the field of ${domainName}.`;
+    if (bannerPaperCount) bannerPaperCount.textContent = domainPapers.length;
+
+    // Render cards
     papersGrid.innerHTML = '';
-    domain.papers.forEach((paper, index) => {
+    if (filteredPapers.length === 0) {
+      papersGrid.innerHTML = '<div class="no-papers"><p><i class="fas fa-info-circle"></i> No papers found for this year.</p></div>';
+      return;
+    }
+
+    filteredPapers.forEach((paper, index) => {
       const card = document.createElement('article');
       card.className = 'paper-card reveal';
-      card.style.animationDelay = `${index * 0.1}s`;
+      card.style.animationDelay = `${index * 0.05}s`;
 
       const doiSection = paper.doi
         ? `<a href="${paper.doi}" target="_blank" rel="noopener noreferrer" class="paper-doi" aria-label="DOI: ${paper.doiLabel}">
@@ -438,23 +483,189 @@ function initDomainTabs() {
     });
   }
 
-  tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      // Update active tab
-      tabs.forEach(t => {
-        t.classList.remove('active');
-        t.setAttribute('aria-selected', 'false');
-      });
-      tab.classList.add('active');
-      tab.setAttribute('aria-selected', 'true');
+  // Generate Year filter tabs dynamically
+  function renderYearTabs(domainName) {
+    const yearTabsContainer = document.getElementById('year-tabs');
+    if (!yearTabsContainer) return;
 
-      const domainKey = tab.dataset.domain;
-      renderPapers(domainKey);
+    const domainPapers = PAPERS_DATABASE.filter(p => p.domain === domainName);
+    const years = new Set();
+    domainPapers.forEach(p => {
+      if (p.year) years.add(p.year);
     });
+
+    const sortedYears = Array.from(years).sort((a, b) => b.localeCompare(a));
+
+    yearTabsContainer.innerHTML = '';
+
+    // "All" tab
+    const allTab = document.createElement('button');
+    allTab.className = 'year-tab' + (activeYear === 'All' ? ' active' : '');
+    allTab.textContent = 'All';
+    allTab.setAttribute('role', 'tab');
+    allTab.addEventListener('click', () => {
+      yearTabsContainer.querySelectorAll('.year-tab').forEach(t => t.classList.remove('active'));
+      allTab.classList.add('active');
+      activeYear = 'All';
+      renderPapers(domainName, 'All');
+    });
+    yearTabsContainer.appendChild(allTab);
+
+    // Specific Year tabs
+    sortedYears.forEach(yr => {
+      const yrTab = document.createElement('button');
+      yrTab.className = 'year-tab' + (activeYear === yr ? ' active' : '');
+      yrTab.textContent = yr;
+      yrTab.setAttribute('role', 'tab');
+      yrTab.addEventListener('click', () => {
+        yearTabsContainer.querySelectorAll('.year-tab').forEach(t => t.classList.remove('active'));
+        yrTab.classList.add('active');
+        activeYear = yr;
+        renderPapers(domainName, yr);
+      });
+      yearTabsContainer.appendChild(yrTab);
+    });
+  }
+
+  // Select a domain
+  function selectDomain(domainName) {
+    activeDomain = domainName;
+    activeYear = 'All';
+
+    // Update pills status
+    pillsGrid.querySelectorAll('.domain-pill').forEach(pill => {
+      const isCurrent = pill.dataset.domain === domainName;
+      pill.classList.toggle('active', isCurrent);
+      pill.setAttribute('aria-selected', isCurrent.toString());
+    });
+
+    renderYearTabs(domainName);
+    renderPapers(domainName, 'All');
+  }
+
+  // Render all domain pills initially
+  pillsGrid.innerHTML = '';
+  sortedDomains.forEach((dom, index) => {
+    const categoryKey = domainCategoryMap[dom] || 'ds';
+    const categoryInfo = RESEARCH_DATA[categoryKey] || { icon: 'fas fa-book' };
+
+    const pill = document.createElement('button');
+    pill.className = `domain-pill cat-${categoryKey}` + (index === 0 ? ' active' : '');
+    pill.dataset.domain = dom;
+    pill.dataset.category = categoryKey;
+    pill.setAttribute('role', 'tab');
+    pill.setAttribute('aria-selected', (index === 0).toString());
+    pill.innerHTML = `
+      <i class="${categoryInfo.icon} pill-icon"></i>
+      <span class="pill-name">${dom}</span>
+      <span class="pill-count">${domainsMap[dom]}</span>
+    `;
+
+    pill.addEventListener('click', () => {
+      selectDomain(dom);
+      // Scroll to papers banner with offset to clear sticky header
+      const banner = document.getElementById('domain-info-banner');
+      if (banner) {
+        const offset = 80;
+        const pos = banner.getBoundingClientRect().top + window.scrollY - offset;
+        window.scrollTo({ top: pos, behavior: 'smooth' });
+      }
+    });
+
+    pillsGrid.appendChild(pill);
   });
 
-  // Initialize with first domain
-  renderPapers('healthcare');
+  // Category Filter bar click logic
+  const catFilterBar = document.getElementById('category-filter-bar');
+  if (catFilterBar) {
+    catFilterBar.querySelectorAll('.category-filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        catFilterBar.querySelectorAll('.category-filter-btn').forEach(b => {
+          b.classList.remove('active');
+          b.setAttribute('aria-selected', 'false');
+        });
+        btn.classList.add('active');
+        btn.setAttribute('aria-selected', 'true');
+
+        const selectedCat = btn.dataset.category;
+        const pills = pillsGrid.querySelectorAll('.domain-pill');
+        let firstVisiblePill = null;
+        let activePillStillVisible = false;
+
+        pills.forEach(pill => {
+          const pillCat = pill.dataset.category;
+          const matches = (selectedCat === 'all' || pillCat === selectedCat);
+          if (matches) {
+            pill.style.display = 'flex';
+            if (!firstVisiblePill) firstVisiblePill = pill;
+            if (pill.dataset.domain === activeDomain) activePillStillVisible = true;
+          } else {
+            pill.style.display = 'none';
+          }
+        });
+
+        // If the active domain is hidden, auto-select the first visible one in this category
+        if (!activePillStillVisible && firstVisiblePill) {
+          selectDomain(firstVisiblePill.dataset.domain);
+        }
+      });
+    });
+  }
+
+  // Domain search filter
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase().trim();
+
+      // Reset category filter to 'all' if user starts typing
+      if (query !== '' && catFilterBar) {
+        const allBtn = catFilterBar.querySelector('.category-filter-btn[data-category="all"]');
+        if (allBtn && !allBtn.classList.contains('active')) {
+          catFilterBar.querySelectorAll('.category-filter-btn').forEach(b => {
+            b.classList.remove('active');
+            b.setAttribute('aria-selected', 'false');
+          });
+          allBtn.classList.add('active');
+          allBtn.setAttribute('aria-selected', 'true');
+        }
+      }
+
+      const pills = pillsGrid.querySelectorAll('.domain-pill');
+      pills.forEach(pill => {
+        const name = pill.querySelector('.pill-name').textContent.toLowerCase();
+        if (name.includes(query)) {
+          pill.style.display = 'flex';
+        } else {
+          pill.style.display = 'none';
+        }
+      });
+    });
+  }
+
+  // Initialize first domain
+  if (sortedDomains.length > 0) {
+    selectDomain(sortedDomains[0]);
+  }
+
+  // Back to Domains buttons logic
+  function scrollToDomains() {
+    const domainsSection = document.getElementById('domains');
+    if (domainsSection) {
+      const offset = 80;
+      const pos = domainsSection.getBoundingClientRect().top + window.scrollY - offset;
+      window.scrollTo({ top: pos, behavior: 'smooth' });
+    }
+  }
+
+  const backToDomainsTopBtn = document.getElementById('back-to-domains-top-btn');
+  if (backToDomainsTopBtn) {
+    backToDomainsTopBtn.addEventListener('click', scrollToDomains);
+  }
+
+  const backToDomainsBottomBtn = document.getElementById('back-to-domains-bottom-btn');
+  if (backToDomainsBottomBtn) {
+    backToDomainsBottomBtn.addEventListener('click', scrollToDomains);
+  }
 }
 
 /* ============================================================
@@ -1022,12 +1233,19 @@ function initFooterDomainLinks() {
     link.addEventListener('click', (e) => {
       const domainKeys = ['healthcare', 'ml', 'image', 'remote', 'iot', 'ds'];
       const key = domainKeys[i];
-      if (key) {
-        // Small timeout to allow scroll to complete, then activate tab
-        setTimeout(() => {
-          const tab = document.querySelector(`.domain-tab[data-domain="${key}"]`);
-          if (tab) tab.click();
-        }, 600);
+      if (key && typeof PAPERS_DATABASE !== 'undefined') {
+        // Find the first domain in database belonging to this category
+        const matchPaper = PAPERS_DATABASE.find(p => p.category === key);
+        if (matchPaper) {
+          const domName = matchPaper.domain;
+          setTimeout(() => {
+            const pill = document.querySelector(`.domain-pill[data-domain="${domName}"]`);
+            if (pill) {
+              pill.click();
+              pill.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+          }, 600);
+        }
       }
     });
   });
