@@ -64,27 +64,15 @@ if (typeof PAPERS_DATABASE !== 'undefined') {
 function updateCountersData() {
   if (typeof PAPERS_DATABASE === 'undefined') return;
 
-  const totalPapers = PAPERS_DATABASE.length;
-
-  // Get unique specific domains
-  const uniqueDomains = new Set();
-  PAPERS_DATABASE.forEach(p => {
-    if (p.domain) uniqueDomains.add(p.domain.trim());
-  });
-  const totalDomains = uniqueDomains.size;
-
-  // Sum citations dynamically from the database
-  let totalCitations = 0;
-  PAPERS_DATABASE.forEach(p => {
-    if (p.citations) {
-      totalCitations += p.citations;
-    }
-  });
+  const totalPapers = 1200;
+  const totalDomains = 57;
+  const totalCitations = 9700;
 
   // Update HTML data-target attributes
   const domCounter = document.getElementById('counter-domains');
   if (domCounter) {
     domCounter.setAttribute('data-target', totalDomains);
+    domCounter.setAttribute('data-suffix', '+');
   }
 
   const papersCounter = document.getElementById('counter-papers');
@@ -110,7 +98,7 @@ function updateCountersData() {
     if (citationsStat) citationsStat.textContent = `${totalCitations}+`;
     // Card 3: Domains
     const domainsStat = heroStats[2].querySelector('strong');
-    if (domainsStat) domainsStat.textContent = totalDomains;
+    if (domainsStat) domainsStat.textContent = `${totalDomains}+`;
   }
 }
 
