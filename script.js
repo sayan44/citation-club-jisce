@@ -482,10 +482,30 @@ function initDomainTabs() {
            <em class="paper-title">${paper.title}</em>
            <span class="paper-journal"> ${paper.journal}</span>
          </div>
-         ${doiSection}
+         <div class="card-actions">
+           ${doiSection}
+           <button class="citation-btn dom-citation-btn" aria-label="Cite this paper">
+             <i class="fas fa-quote-left"></i> Cite
+           </button>
+         </div>
+         <div class="citation-drawer" id="dom-citation-drawer-${index}">
+           <div class="citation-tabs">
+             <button class="citation-tab-btn dom-citation-tab-btn active" data-style="apa" data-index="${index}">APA</button>
+             <button class="citation-tab-btn dom-citation-tab-btn" data-style="mla" data-index="${index}">MLA</button>
+             <button class="citation-tab-btn dom-citation-tab-btn" data-style="chicago" data-index="${index}">Chicago</button>
+             <button class="citation-tab-btn dom-citation-tab-btn" data-style="ieee" data-index="${index}">IEEE</button>
+           </div>
+           <div class="citation-content-area">
+             <div class="citation-text-box" id="dom-citation-text-${index}">Loading...</div>
+             <button class="btn-copy-citation" id="dom-copy-btn-${index}" data-index="${index}" title="Copy to clipboard">
+               <i class="far fa-copy"></i>
+             </button>
+           </div>
+         </div>
        `;
 
       papersGrid.appendChild(card);
+      attachCitationEvents(card, paper, 'dom', index);
     });
 
     // Trigger reveal animations
@@ -685,125 +705,237 @@ function initDomainTabs() {
 /* ============================================================
    FEATURED PAPERS CAROUSEL
    ============================================================ */
-function initCarousel() {
-  const track = document.getElementById('carousel-track');
-  const dotsContainer = document.getElementById('carousel-dots');
-  const prevBtn = document.getElementById('carousel-prev');
-  const nextBtn = document.getElementById('carousel-next');
+/* ============================================================
+   CITATION HELPERS & EVENT HANDLERS
+   ============================================================ */
 
-  if (!track) return;
-
-  // Dynamically select featured papers from each category (most recent ones)
-  const featured = [];
-  const domainKeys = ['healthcare', 'ml', 'image', 'remote', 'iot', 'ds'];
-  domainKeys.forEach(key => {
-    const dom = RESEARCH_DATA[key];
-    if (dom && dom.papers && dom.papers.length > 0) {
-      // Sort to get latest papers first
-      const sorted = [...dom.papers].sort((a, b) => b.year.localeCompare(a.year));
-      // Add first paper as featured
-      featured.push({
-        ...sorted[0],
-        domain: dom.name,
-        domainIcon: dom.icon
-      });
-      // Add a second paper for larger categories
-      if (sorted.length > 15 && sorted[1]) {
-        featured.push({
-          ...sorted[1],
-          domain: dom.name,
-          domainIcon: dom.icon
-        });
-      }
+function parseAuthors(authorsStr) {
+  if (!authorsStr) return [];
+  return authorsStr.split(';').map(auth => {
+    auth = auth.trim();
+    if (!auth) return null;
+    const parts = auth.split(/\s+/);
+    if (parts.length === 1) {
+      return { surname: parts[0], initials: '' };
     }
-  });
+    const initials = parts[parts.length - 1];
+    const surname = parts.slice(0, -1).join(' ');
+    let formattedInitials = initials;
+    if (!formattedInitials.includes('.')) {
+      formattedInitials = formattedInitials.split('').join('. ') + '.';
+    } else {
+      formattedInitials = formattedInitials.replace(/\./g, '. ').trim();
+    }
+    formattedInitials = formattedInitials.replace(/\s+/g, ' ');
+    return { surname, initials: formattedInitials };
+  }).filter(Boolean);
+}
 
-  let currentSlide = 0;
-  let autoplayTimer;
+function getAPA(paper, parsedAuthors) {
+  let authorPart = '';
+  if (parsedAuthors.length === 1) {
+    authorPart = `${parsedAuthors[0].surname}, ${parsedAuthors[0].initials}`;
+  } else if (parsedAuthors.length === 2) {
+    authorPart = `${parsedAuthors[0].surname}, ${parsedAuthors[0].initials} & ${parsedAuthors[1].surname}, ${parsedAuthors[1].initials}`;
+  } else if (parsedAuthors.length > 2) {
+    const allButLast = parsedAuthors.slice(0, -1).map(a => `${a.surname}, ${a.initials}`).join(', ');
+    const last = parsedAuthors[parsedAuthors.length - 1];
+    authorPart = `${allButLast}, & ${last.surname}, ${last.initials}`;
+  }
+  if (authorPart && !authorPart.endsWith('.')) authorPart += '.';
+  
+  let citation = `${authorPart} (${paper.year}). ${paper.title}. ${paper.journal}.`;
+  if (paper.doi) {
+    citation += ` ${paper.doi}`;
+  }
+  return citation;
+}
 
-  // Build slides
-  featured.forEach((paper, i) => {
-    const slide = document.createElement('div');
-    slide.className = 'carousel-slide';
+function getMLA(paper, parsedAuthors) {
+  let authorPart = '';
+  if (parsedAuthors.length === 1) {
+    authorPart = `${parsedAuthors[0].surname}, ${parsedAuthors[0].initials}`;
+  } else if (parsedAuthors.length === 2) {
+    authorPart = `${parsedAuthors[0].surname}, ${parsedAuthors[0].initials}, and ${parsedAuthors[1].initials} ${parsedAuthors[1].surname}`;
+  } else if (parsedAuthors.length > 2) {
+    authorPart = `${parsedAuthors[0].surname}, ${parsedAuthors[0].initials}, et al.`;
+  }
+  if (authorPart && !authorPart.endsWith('.')) authorPart += '.';
+  
+  let citation = `${authorPart} "${paper.title}." ${paper.journal}, ${paper.year}.`;
+  if (paper.doi) {
+    citation += ` ${paper.doi}`;
+  }
+  return citation;
+}
 
-    const doiBtn = paper.doi
-      ? `<a href="${paper.doi}" target="_blank" rel="noopener noreferrer" class="carousel-doi-btn">
-           <i class="fas fa-external-link-alt"></i> ${paper.doi.indexOf('doi.org') !== -1 ? 'View DOI' : 'View on Scopus'}
-         </a>`
-      : `<span class="carousel-doi-btn" style="opacity:0.5;cursor:default;">No DOI</span>`;
+function getChicago(paper, parsedAuthors) {
+  let authorPart = '';
+  if (parsedAuthors.length === 1) {
+    authorPart = `${parsedAuthors[0].surname}, ${parsedAuthors[0].initials}`;
+  } else if (parsedAuthors.length === 2) {
+    authorPart = `${parsedAuthors[0].surname}, ${parsedAuthors[0].initials}, and ${parsedAuthors[1].initials} ${parsedAuthors[1].surname}`;
+  } else if (parsedAuthors.length > 2) {
+    authorPart = `${parsedAuthors[0].surname}, ${parsedAuthors[0].initials}, et al.`;
+  }
+  if (authorPart && !authorPart.endsWith('.')) authorPart += '.';
+  
+  let citation = `${authorPart} "${paper.title}." ${paper.journal} (${paper.year}).`;
+  if (paper.doi) {
+    citation += ` ${paper.doi}`;
+  }
+  return citation;
+}
 
-    slide.innerHTML = `
-      <div class="carousel-card">
-        <div class="carousel-domain-badge">
-          <i class="${paper.domainIcon}"></i> ${paper.domain}
-        </div>
-        <h3 class="carousel-paper-title">${paper.title}</h3>
-        <p class="carousel-paper-authors">${paper.authors}</p>
-        <p class="carousel-paper-year"><i class="fas fa-calendar-alt"></i> ${paper.year} · ${paper.journal}</p>
-        ${doiBtn}
-      </div>
-    `;
-    track.appendChild(slide);
+function getIEEE(paper, parsedAuthors) {
+  let authorPart = '';
+  if (parsedAuthors.length === 1) {
+    authorPart = `${parsedAuthors[0].initials} ${parsedAuthors[0].surname}`;
+  } else if (parsedAuthors.length === 2) {
+    authorPart = `${parsedAuthors[0].initials} ${parsedAuthors[0].surname} and ${parsedAuthors[1].initials} ${parsedAuthors[1].surname}`;
+  } else if (parsedAuthors.length > 2) {
+    if (parsedAuthors.length > 6) {
+      authorPart = `${parsedAuthors[0].initials} ${parsedAuthors[0].surname} et al.`;
+    } else {
+      const allButLast = parsedAuthors.slice(0, -1).map(a => `${a.initials} ${a.surname}`).join(', ');
+      const last = parsedAuthors[parsedAuthors.length - 1];
+      authorPart = `${allButLast}, and ${last.initials} ${last.surname}`;
+    }
+  }
+  
+  let citation = `${authorPart}, "${paper.title}," ${paper.journal}, ${paper.year}.`;
+  if (paper.doi) {
+    citation += ` doi: ${paper.doiLabel || paper.doi}.`;
+  }
+  return citation;
+}
 
-    // Dot
-    const dot = document.createElement('button');
-    dot.className = 'carousel-dot' + (i === 0 ? ' active' : '');
-    dot.setAttribute('aria-label', `Go to slide ${i + 1}`);
-    dot.addEventListener('click', () => goToSlide(i));
-    dotsContainer.appendChild(dot);
-  });
+function generateCitationText(paper, style) {
+  const parsed = parseAuthors(paper.authors);
+  switch (style.toLowerCase()) {
+    case 'apa': return getAPA(paper, parsed);
+    case 'mla': return getMLA(paper, parsed);
+    case 'chicago': return getChicago(paper, parsed);
+    case 'ieee': return getIEEE(paper, parsed);
+    default: return getAPA(paper, parsed);
+  }
+}
 
-  function goToSlide(index) {
-    currentSlide = (index + featured.length) % featured.length;
-    track.style.transform = `translateX(-${currentSlide * 100}%)`;
-    document.querySelectorAll('.carousel-dot').forEach((dot, i) => {
-      dot.classList.toggle('active', i === currentSlide);
+function attachCitationEvents(cardElement, paper, prefix, index) {
+  const citeBtn = cardElement.querySelector(`.${prefix}-citation-btn`);
+  const drawer = cardElement.querySelector(`#${prefix}-citation-drawer-${index}`);
+  const textBox = cardElement.querySelector(`#${prefix}-citation-text-${index}`);
+  const copyBtn = cardElement.querySelector(`#${prefix}-copy-btn-${index}`);
+  const tabBtns = cardElement.querySelectorAll(`.${prefix}-citation-tab-btn`);
+
+  let currentStyle = 'apa';
+
+  function updateCitationDisplay() {
+    if (textBox) {
+      textBox.textContent = generateCitationText(paper, currentStyle);
+    }
+  }
+
+  if (citeBtn && drawer) {
+    citeBtn.addEventListener('click', () => {
+      const isOpen = drawer.classList.toggle('open');
+      citeBtn.classList.toggle('active', isOpen);
+      if (isOpen) {
+        updateCitationDisplay();
+      }
     });
   }
 
-  function startAutoplay() {
-    autoplayTimer = setInterval(() => {
-      goToSlide(currentSlide + 1);
-    }, 5000);
-  }
-
-  function stopAutoplay() {
-    clearInterval(autoplayTimer);
-  }
-
-  prevBtn.addEventListener('click', () => {
-    stopAutoplay();
-    goToSlide(currentSlide - 1);
-    startAutoplay();
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      tabBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentStyle = btn.dataset.style;
+      updateCitationDisplay();
+    });
   });
 
-  nextBtn.addEventListener('click', () => {
-    stopAutoplay();
-    goToSlide(currentSlide + 1);
-    startAutoplay();
-  });
+  if (copyBtn) {
+    copyBtn.addEventListener('click', () => {
+      const textToCopy = generateCitationText(paper, currentStyle);
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        copyBtn.classList.add('copied');
+        copyBtn.innerHTML = '<i class="fas fa-check"></i>';
+        setTimeout(() => {
+          copyBtn.classList.remove('copied');
+          copyBtn.innerHTML = '<i class="far fa-copy"></i>';
+        }, 2000);
+      }).catch(err => {
+        console.error('Failed to copy text: ', err);
+      });
+    });
+  }
+}
 
-  // Touch / swipe support
-  let touchStartX = 0;
-  track.addEventListener('touchstart', (e) => {
-    touchStartX = e.changedTouches[0].screenX;
-  }, { passive: true });
+/* ============================================================
+   INTERACTIVE COUNTERS & STAT CARDS CLICK SCROLL
+   ============================================================ */
+function initInteractiveCounters() {
+  const counterDomains = document.getElementById('counter-domains');
+  const counterPapers = document.getElementById('counter-papers');
+  const counterCitations = document.getElementById('counter-citations');
+  const counterCommunity = document.getElementById('counter-community');
 
-  track.addEventListener('touchend', (e) => {
-    const dx = e.changedTouches[0].screenX - touchStartX;
-    if (Math.abs(dx) > 40) {
-      stopAutoplay();
-      goToSlide(dx < 0 ? currentSlide + 1 : currentSlide - 1);
-      startAutoplay();
+  function scrollToSection(targetId) {
+    const target = document.getElementById(targetId);
+    if (target) {
+      const offset = 80;
+      const pos = target.getBoundingClientRect().top + window.scrollY - offset;
+      window.scrollTo({ top: pos, behavior: 'smooth' });
     }
-  });
+  }
 
-  // Pause on hover
-  const container = document.getElementById('carousel-container');
-  container.addEventListener('mouseenter', stopAutoplay);
-  container.addEventListener('mouseleave', startAutoplay);
+  if (counterDomains) {
+    counterDomains.closest('.counter-item').addEventListener('click', () => {
+      scrollToSection('domains');
+    });
+  }
 
-  startAutoplay();
+  if (counterPapers) {
+    counterPapers.closest('.counter-item').addEventListener('click', () => {
+      scrollToSection('top-cited');
+      const limitSelect = document.getElementById('top-cited-limit-select');
+      if (limitSelect) {
+        limitSelect.value = 'all';
+        limitSelect.dispatchEvent(new Event('change'));
+      }
+    });
+  }
+
+  if (counterCitations) {
+    counterCitations.closest('.counter-item').addEventListener('click', () => {
+      scrollToSection('top-cited');
+    });
+  }
+
+  if (counterCommunity) {
+    counterCommunity.closest('.counter-item').addEventListener('click', () => {
+      scrollToSection('resources');
+    });
+  }
+
+  const heroStats = document.querySelectorAll('.hero-stats .hero-stat-card');
+  if (heroStats.length >= 3) {
+    heroStats[0].addEventListener('click', () => {
+      scrollToSection('top-cited');
+      const limitSelect = document.getElementById('top-cited-limit-select');
+      if (limitSelect) {
+        limitSelect.value = 'all';
+        limitSelect.dispatchEvent(new Event('change'));
+      }
+    });
+    heroStats[1].addEventListener('click', () => {
+      scrollToSection('top-cited');
+    });
+    heroStats[2].addEventListener('click', () => {
+      scrollToSection('domains');
+    });
+  }
 }
 
 /* ============================================================
@@ -838,7 +970,7 @@ function initCharts() {
     return Math.round(pCount * weight);
   });
   
-  const startYear = 2019;
+  const startYear = 2000;
   const endYear = 2026;
   const GROWTH_YEARS = [];
   const GROWTH_DATA = [];
@@ -848,6 +980,13 @@ function initCharts() {
     const count = PAPERS_DATABASE.filter(p => p.year === String(y)).length;
     GROWTH_DATA.push(count);
   }
+
+  // Calculate Cumulative Growth
+  let sum = 0;
+  const CUMULATIVE_DATA = GROWTH_DATA.map(count => {
+    sum += count;
+    return sum;
+  });
 
   const PALETTE = [
     '#0a2463', '#1d4ed8', '#f6c90e', '#d97706', '#10b981', '#7c3aed'
@@ -942,7 +1081,50 @@ function initCharts() {
     });
   }
 
-  // Line Chart – Research Growth
+  // Bar Chart – Publications by Year
+  const yearlyPublicationsCtx = document.getElementById('yearlyPublicationsChart');
+  if (yearlyPublicationsCtx) {
+    new Chart(yearlyPublicationsCtx, {
+      type: 'bar',
+      data: {
+        labels: GROWTH_YEARS,
+        datasets: [{
+          label: 'Publications Count',
+          data: GROWTH_DATA,
+          backgroundColor: '#1d4ed8cc',
+          borderColor: '#1d4ed8',
+          borderWidth: 2,
+          borderRadius: 4,
+          borderSkipped: false
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: ctx => ` ${ctx.raw} papers`
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: { font: { size: 9 }, maxRotation: 45, minRotation: 45 }
+          },
+          y: {
+            beginAtZero: true,
+            grid: { color: 'rgba(0,0,0,0.06)' }
+          }
+        },
+        animation: { duration: 1000 }
+      }
+    });
+  }
+
+  // Line Chart – Research Growth (Cumulative)
   const lineCtx = document.getElementById('lineChart');
   if (lineCtx) {
     new Chart(lineCtx, {
@@ -950,16 +1132,16 @@ function initCharts() {
       data: {
         labels: GROWTH_YEARS,
         datasets: [{
-          label: 'Research Output Index',
-          data: GROWTH_DATA,
+          label: 'Cumulative Publications',
+          data: CUMULATIVE_DATA,
           borderColor: '#f6c90e',
           backgroundColor: 'rgba(246, 201, 14, 0.12)',
           borderWidth: 3,
           pointBackgroundColor: '#f6c90e',
           pointBorderColor: '#0a2463',
           pointBorderWidth: 2,
-          pointRadius: 6,
-          pointHoverRadius: 8,
+          pointRadius: 4,
+          pointHoverRadius: 6,
           fill: true,
           tension: 0.45
         }]
@@ -973,18 +1155,18 @@ function initCharts() {
           },
           tooltip: {
             callbacks: {
-              label: ctx => ` Index: ${ctx.raw}`
+              label: ctx => ` Total: ${ctx.raw} papers`
             }
           }
         },
         scales: {
           x: {
             grid: { display: false },
-            ticks: { font: { size: 11 } }
+            ticks: { font: { size: 9 }, maxRotation: 45, minRotation: 45 }
           },
           y: {
             beginAtZero: true,
-            max: Math.max(60, Math.max(...GROWTH_DATA) + 10),
+            max: Math.max(1250, Math.max(...CUMULATIVE_DATA) + 50),
             grid: { color: 'rgba(0,0,0,0.06)' }
           }
         },
@@ -1013,7 +1195,8 @@ function initSearch() {
     domain.papers.forEach(paper => {
       searchIndex.push({
         ...paper,
-        domain: domain.name,
+        domain: paper.domain, // Keep the original specific domain name (e.g. "Healthcare AI & Digital Health")
+        categoryName: domain.name, // Parent category name (e.g. "Healthcare & Medical AI")
         domainKey: key
       });
     });
@@ -1032,6 +1215,7 @@ function initSearch() {
         paper.title.toLowerCase().includes(query) ||
         paper.authors.toLowerCase().includes(query) ||
         paper.domain.toLowerCase().includes(query) ||
+        (paper.categoryName && paper.categoryName.toLowerCase().includes(query)) ||
         (paper.doiLabel && paper.doiLabel.toLowerCase().includes(query)) ||
         paper.journal.toLowerCase().includes(query) ||
         paper.year.includes(query)
@@ -1041,26 +1225,112 @@ function initSearch() {
     overlay.classList.remove('hidden');
     resultsTitle.textContent = `${results.length} result${results.length !== 1 ? 's' : ''} for "${query}"`;
 
+    resultsList.innerHTML = '';
     if (results.length === 0) {
       resultsList.innerHTML = '<p class="search-no-results"><i class="fas fa-search"></i> No papers found matching your query.</p>';
       return;
     }
 
-    resultsList.innerHTML = results.map(paper => `
-      <div class="search-result-item">
-        <p class="search-result-title">${paper.title}</p>
-        <p class="search-result-authors">${paper.authors} (${paper.year})</p>
-        <div class="search-result-meta">
-          <span class="search-result-domain">${paper.domain}</span>
-          ${paper.doi
-            ? `<a href="${paper.doi}" target="_blank" rel="noopener noreferrer" class="search-result-doi">
-                 <i class="fas fa-external-link-alt"></i> ${paper.doi.indexOf('doi.org') !== -1 ? paper.doiLabel : 'Scopus Link'}
-               </a>`
-            : '<span class="search-result-doi">No DOI</span>'
-          }
+    results.forEach(paper => {
+      const item = document.createElement('div');
+      item.className = 'search-result-item';
+
+      const doiHtml = paper.doi
+        ? `<a href="${paper.doi}" target="_blank" rel="noopener noreferrer" class="search-result-doi">
+             <i class="fas fa-external-link-alt"></i> ${paper.doi.indexOf('doi.org') !== -1 ? paper.doiLabel : 'Scopus Link'}
+           </a>`
+        : '<span class="search-result-doi">No DOI</span>';
+
+      item.innerHTML = `
+        <div class="search-result-content">
+          <p class="search-result-title">${paper.title}</p>
+          <p class="search-result-authors">${paper.authors} (${paper.year})</p>
+          <div class="search-result-meta">
+            <span class="search-result-domain" title="Specific Domain">${paper.domain}</span>
+            <span class="search-result-category" title="Category" style="background: rgba(255, 255, 255, 0.08); color: rgba(255, 255, 255, 0.6); font-size: 0.75rem; font-weight: 500; padding: 2px 10px; border-radius: var(--radius-full);">${paper.categoryName}</span>
+            ${doiHtml}
+          </div>
         </div>
-      </div>
-    `).join('');
+        <button class="search-copy-btn" title="Copy APA Citation">
+          <i class="far fa-copy"></i> Copy Cite
+        </button>
+      `;
+
+      // Copy citation button click action
+      const copyBtn = item.querySelector('.search-copy-btn');
+      if (copyBtn) {
+        copyBtn.addEventListener('click', (e) => {
+          e.stopPropagation(); // prevent triggering item click
+          const textToCopy = generateCitationText(paper, 'apa');
+          navigator.clipboard.writeText(textToCopy).then(() => {
+            copyBtn.classList.add('copied');
+            copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied';
+            setTimeout(() => {
+              copyBtn.classList.remove('copied');
+              copyBtn.innerHTML = '<i class="far fa-copy"></i> Copy Cite';
+            }, 2000);
+          }).catch(err => {
+            console.error('Failed to copy text: ', err);
+          });
+        });
+      }
+
+      // Navigate to paper in domains tab click action
+      item.addEventListener('click', (e) => {
+        // If clicked on DOI anchor, let default behavior happen
+        if (e.target.closest('a')) return;
+
+        // Hide overlay & clear search
+        overlay.classList.add('hidden');
+        searchInput.value = '';
+
+        // Reset category filter to 'all' to ensure all domains are visible
+        const allBtn = document.querySelector('.category-filter-btn[data-category="all"]');
+        if (allBtn) {
+          allBtn.click();
+        }
+
+        // Scroll to Domains and select the domain
+        setTimeout(() => {
+          const pill = document.querySelector(`.domain-pill[data-domain="${paper.domain}"]`);
+          if (pill) {
+            pill.click();
+
+            // Set year filter to the paper's year
+            setTimeout(() => {
+              const yearTabs = document.querySelectorAll('#year-tabs .year-tab');
+              const matchTab = Array.from(yearTabs).find(tab => tab.textContent.trim() === paper.year);
+              if (matchTab) {
+                matchTab.click();
+              }
+
+              // Scroll to and highlight card in papers grid
+              setTimeout(() => {
+                const cards = document.querySelectorAll('#papers-grid .paper-card');
+                const matchCard = Array.from(cards).find(card => {
+                  const titleEl = card.querySelector('.paper-title');
+                  return titleEl && titleEl.textContent.trim().toLowerCase() === paper.title.trim().toLowerCase();
+                });
+
+                if (matchCard) {
+                  const offset = 120;
+                  const pos = matchCard.getBoundingClientRect().top + window.scrollY - offset;
+                  window.scrollTo({ top: pos, behavior: 'smooth' });
+
+                  // Flash card highlight
+                  matchCard.classList.add('search-flash-highlight');
+                  setTimeout(() => {
+                    matchCard.classList.remove('search-flash-highlight');
+                  }, 2500);
+                }
+              }, 300);
+            }, 150);
+          }
+        }, 100);
+      });
+
+      resultsList.appendChild(item);
+    });
   }
 
   // Debounced input handler
@@ -1301,7 +1571,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Content sections
   initDomainTabs();
-  initCarousel();
+  initInteractiveCounters();
   initSearch();
   initContactForm();
   initFooterDomainLinks();
@@ -1357,6 +1627,9 @@ function initTopCitedPapers() {
     papersToRender.forEach((paper, index) => {
       const card = document.createElement('article');
       card.className = 'paper-card reveal';
+      if (index < 10) {
+        card.classList.add('top-10-highlight');
+      }
       card.style.animationDelay = `${(index % 20) * 0.04}s`;
 
       let doiSection = '';
@@ -1374,17 +1647,40 @@ function initTopCitedPapers() {
         doiSection = `<span class="paper-doi" style="opacity:0.5;cursor:default;"><i class="fas fa-book"></i> No DOI available</span>`;
       }
 
+      const rankBadge = index < 10 ? `<span class="top-rank-badge"><i class="fas fa-trophy"></i> Rank #${index + 1}</span>` : '';
+
       card.innerHTML = `
+        ${rankBadge}
         <span class="citations-badge"><i class="fas fa-quote-right"></i> ${paper.citations || 0} Citations</span>
         <div class="paper-citation">
           <span class="paper-authors">${paper.authors} (${paper.year}). </span>
           <em class="paper-title">${paper.title}</em>
           <span class="paper-journal"> ${paper.journal}</span>
         </div>
-        ${doiSection}
+        <div class="card-actions">
+          ${doiSection}
+          <button class="citation-btn top-citation-btn" aria-label="Cite this paper">
+            <i class="fas fa-quote-left"></i> Cite
+          </button>
+        </div>
+        <div class="citation-drawer" id="top-citation-drawer-${index}">
+          <div class="citation-tabs">
+            <button class="citation-tab-btn top-citation-tab-btn active" data-style="apa" data-index="${index}">APA</button>
+            <button class="citation-tab-btn top-citation-tab-btn" data-style="mla" data-index="${index}">MLA</button>
+            <button class="citation-tab-btn top-citation-tab-btn" data-style="chicago" data-index="${index}">Chicago</button>
+            <button class="citation-tab-btn top-citation-tab-btn" data-style="ieee" data-index="${index}">IEEE</button>
+          </div>
+          <div class="citation-content-area">
+            <div class="citation-text-box" id="top-citation-text-${index}">Loading...</div>
+            <button class="btn-copy-citation" id="top-copy-btn-${index}" data-index="${index}" title="Copy to clipboard">
+              <i class="far fa-copy"></i>
+            </button>
+          </div>
+        </div>
       `;
 
       topCitedGrid.appendChild(card);
+      attachCitationEvents(card, paper, 'top', index);
     });
 
     // Re-trigger reveal animations

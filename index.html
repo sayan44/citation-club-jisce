@@ -98,11 +98,11 @@
         <ul class="nav-menu" id="nav-menu" role="menubar">
           <li role="none"><a href="#home" class="nav-link active" role="menuitem">Home</a></li>
           <li role="none"><a href="#about" class="nav-link" role="menuitem">About</a></li>
+          <li role="none"><a href="#stats" class="nav-link" role="menuitem">Analytics</a></li>
           <li role="none"><a href="#domains" class="nav-link" role="menuitem">Domains</a></li>
-          <li role="none"><a href="#featured" class="nav-link" role="menuitem">Featured Papers</a></li>
-          <li role="none"><a href="#top-cited" class="nav-link" role="menuitem">Top Cited</a></li>
+          <li role="none"><a href="#top-cited" class="nav-link nav-highlight" role="menuitem">Top Cited</a></li>
           <li role="none"><a href="#resources" class="nav-link" role="menuitem">Resources</a></li>
-          <li role="none"><a href="#committee" class="nav-link" role="menuitem">Committee</a></li>
+          <li role="none"><a href="#committee" class="nav-link" role="menuitem">RPC</a></li>
           <li role="none"><a href="#contact" class="nav-link" role="menuitem">Contact</a></li>
         </ul>
 
@@ -122,7 +122,7 @@
 
     <div class="hero-content">
       <div class="hero-badge">
-        <i class="fas fa-star"></i> Academic Excellence Since 2020
+        <i class="fas fa-star"></i> Academic Excellence Since 2000
       </div>
       <h2 class="hero-heading">Explore Research Across<br /><span class="hero-highlight">Emerging Technologies</span>
       </h2>
@@ -237,6 +237,48 @@
     </div>
   </section>
 
+  <!-- ==================== STATISTICS DASHBOARD ==================== -->
+  <section id="stats" class="stats-section section" aria-labelledby="stats-heading">
+    <div class="section-container">
+      <div class="section-header">
+        <span class="section-badge">Data Insights</span>
+        <h2 id="stats-heading" class="section-title">Research Analytics</h2>
+        <div class="section-divider"></div>
+        <p class="section-description">Interactive visualizations of our research portfolio and citation landscape.</p>
+      </div>
+
+      <div class="charts-grid">
+        <div class="chart-card glass-card" id="chart-card-domains">
+          <h3 class="chart-title"><i class="fas fa-chart-pie"></i> Papers by Domain</h3>
+          <div class="chart-container">
+            <canvas id="donutChart" aria-label="Papers by domain donut chart"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-card glass-card" id="chart-card-citations">
+          <h3 class="chart-title"><i class="fas fa-chart-bar"></i> Citations by Domain</h3>
+          <div class="chart-container">
+            <canvas id="barChart" aria-label="Citation distribution bar chart"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-card glass-card" id="chart-card-yearly">
+          <h3 class="chart-title"><i class="fas fa-chart-bar"></i> Publications by Year</h3>
+          <div class="chart-container">
+            <canvas id="yearlyPublicationsChart" aria-label="Publications by year bar chart"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-card glass-card" id="chart-card-growth">
+          <h3 class="chart-title"><i class="fas fa-chart-line"></i> Research Growth (Cumulative)</h3>
+          <div class="chart-container">
+            <canvas id="lineChart" aria-label="Research growth line chart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ==================== DOMAINS SECTION ==================== -->
   <section id="domains" class="domains-section section" aria-labelledby="domains-heading">
     <div class="section-container">
@@ -331,36 +373,7 @@
     </div>
   </section>
 
-  <!-- ==================== FEATURED PAPERS CAROUSEL ==================== -->
-  <section id="featured" class="featured-section section" aria-labelledby="featured-heading">
-    <div class="section-container">
-      <div class="section-header">
-        <span class="section-badge">Highlights</span>
-        <h2 id="featured-heading" class="section-title">Featured Papers</h2>
-        <div class="section-divider"></div>
-        <p class="section-description">Landmark research publications across all domains.</p>
-      </div>
 
-      <div class="carousel-wrapper" aria-label="Featured papers carousel">
-        <button class="carousel-btn carousel-btn-prev" id="carousel-prev" aria-label="Previous paper">
-          <i class="fas fa-chevron-left"></i>
-        </button>
-
-        <div class="carousel-track-container" id="carousel-container">
-          <div class="carousel-track" id="carousel-track">
-            <!-- Slides injected by JS -->
-          </div>
-        </div>
-
-        <button class="carousel-btn carousel-btn-next" id="carousel-next" aria-label="Next paper">
-          <i class="fas fa-chevron-right"></i>
-        </button>
-      </div>
-
-      <!-- Carousel Dots -->
-      <div class="carousel-dots" id="carousel-dots" role="group" aria-label="Carousel navigation dots"></div>
-    </div>
-  </section>
 
   <!-- ==================== TOP CITED PAPERS SECTION ==================== -->
   <section id="top-cited" class="top-cited-section section" aria-labelledby="top-cited-heading">
@@ -377,8 +390,9 @@
         <div class="top-cited-limit-wrapper">
           <label for="top-cited-limit-select"><i class="fas fa-list-ol"></i> Show Top:</label>
           <select id="top-cited-limit-select" class="top-cited-select" aria-label="Select limit for top cited papers">
+            <option value="10" selected>Top 10 Papers</option>
             <option value="50">Top 50 Papers</option>
-            <option value="100" selected>Top 100 Papers</option>
+            <option value="100">Top 100 Papers</option>
             <option value="250">Top 250 Papers</option>
             <option value="all">All Papers</option>
           </select>
@@ -391,40 +405,7 @@
     </div>
   </section>
 
-  <!-- ==================== STATISTICS DASHBOARD ==================== -->
-  <section id="stats" class="stats-section section" aria-labelledby="stats-heading">
-    <div class="section-container">
-      <div class="section-header">
-        <span class="section-badge">Data Insights</span>
-        <h2 id="stats-heading" class="section-title">Research Analytics</h2>
-        <div class="section-divider"></div>
-        <p class="section-description">Interactive visualizations of our research portfolio and citation landscape.</p>
-      </div>
 
-      <div class="charts-grid">
-        <div class="chart-card glass-card" id="chart-card-domains">
-          <h3 class="chart-title"><i class="fas fa-chart-pie"></i> Papers by Domain</h3>
-          <div class="chart-container">
-            <canvas id="donutChart" aria-label="Papers by domain donut chart"></canvas>
-          </div>
-        </div>
-
-        <div class="chart-card glass-card" id="chart-card-citations">
-          <h3 class="chart-title"><i class="fas fa-chart-bar"></i> Citation Distribution</h3>
-          <div class="chart-container">
-            <canvas id="barChart" aria-label="Citation distribution bar chart"></canvas>
-          </div>
-        </div>
-
-        <div class="chart-card glass-card" id="chart-card-growth">
-          <h3 class="chart-title"><i class="fas fa-chart-line"></i> Research Growth</h3>
-          <div class="chart-container">
-            <canvas id="lineChart" aria-label="Research growth line chart"></canvas>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
 
   <!-- ==================== RESOURCES SECTION ==================== -->
   <section id="resources" class="resources-section section" aria-labelledby="resources-heading">
@@ -842,8 +823,9 @@
       </div>
     </div>
 
-    <div class="footer-bottom" style="justify-content: center; text-align: center;">
+    <div class="footer-bottom" style="justify-content: center; text-align: center; display: flex; flex-direction: column; gap: 6px; align-items: center;">
       <p>&copy; Developed by Dr. Sayan Chakraborty</p>
+      <p><a href="https://docs.google.com/forms/d/e/1FAIpQLSd43sH1jzV0zm-jdD4--Xy-ndtio2H3VcWpUJo-puykJERqAA/viewform?usp=publish-editor" target="_blank" rel="noopener noreferrer" class="bug-link"><i class="fas fa-bug"></i> Report a Bug</a></p>
     </div>
   </footer>
 
